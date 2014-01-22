@@ -128,7 +128,7 @@ function historyView(req, res) {
 
         var output = [];
 
-        (data || []).forEach(function(entry) {
+        (data || []).some(function(entry) {
             if (ref && ref === entry.har.log._ref) {
                 // Return HAR for a single ref.
                 return output = entry.har;
@@ -316,7 +316,7 @@ function chartsView(req, res) {
 
         types.forEach(function(type, idx) {
             // One data entry per ref.
-            output.datasets[idx] = {data: []};
+            output.datasets[idx] = [type];
         });
 
         var whichDataset;
@@ -333,7 +333,7 @@ function chartsView(req, res) {
                 whichDataset = output.datasets[types.indexOf(k)];
 
                 // Push the value onto the array for aforementioned dataset.
-                whichDataset.data.push(entry[stat][k]);
+                whichDataset.push(entry[stat][k]);
             });
         });
 
