@@ -8,10 +8,16 @@ data from captured network traffic. This is the API for
 
 # Installation
 
-    npm install && node app.js
+Install dependencies:
+
+    npm install
+
+Run server:
+
+    PORT=5000 node app.js
 
 
-# Usage
+# API usage
 
 ## Fetch a site to record its network traffic
 
