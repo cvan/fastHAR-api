@@ -314,15 +314,25 @@ function chartsView(req, res) {
             datasets: []
         };
 
+        // Tally each resource type (so we know which keys to omit later).
+        var resourceTotals = {};
+
         types.forEach(function(type, idx) {
             // One data entry per ref.
             output.datasets[idx] = [type];
+
+            // Set counter for each resource type.
+            resourceTotals[type] = 0;
         });
 
         var whichDataset;
 
         data.forEach(function(entry) {
             output.labels.push(entry.ref);
+
+            Object.keys(entry.totals).forEach(function(k) {
+                resourceTotals[k] += entry.totals[k];
+            });
 
             Object.keys(entry[stat]).forEach(function(k) {
                 if (resourceType && k !== resourceType) {
@@ -335,6 +345,12 @@ function chartsView(req, res) {
                 // Push the value onto the array for aforementioned dataset.
                 whichDataset.push(entry[stat][k]);
             });
+        });
+
+        // Omit a particular resource type if no requests of that type were
+        // ever made throughout the entire history recorded for this site.
+        output.datasets = output.datasets.filter(function(dataset) {
+            return resourceTotals[dataset[0]];
         });
 
         res.json(output);
