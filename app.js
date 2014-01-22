@@ -281,7 +281,7 @@ var chartsViewOptions = {
         stat: {
             description: 'Statistic type',
             isRequired: true,
-            isIn: ['size', 'times', 'totals'],
+            isIn: ['sizes', 'times', 'totals'],
             scope: 'path'
         }
     }
