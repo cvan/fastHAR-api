@@ -54,13 +54,11 @@ var fetchViewOptions = {
         },
         name: {
             description: 'Name',
-            isRequired: false,
-            max: 128
+            isRequired: false
         },
         ref: {
             description: 'Ref (unique identifier)',
-            isRequired: false,
-            max: 128
+            isRequired: false
         }
     }
 };
@@ -108,8 +106,7 @@ var historyViewOptions = {
         },
         ref: {
             description: 'Ref (unique identifier)',
-            isRequired: false,
-            max: 128
+            isRequired: false
         }
     }
 };
@@ -160,8 +157,7 @@ var statsViewOptions = {
         },
         ref: {
             description: 'Ref (unique identifier)',
-            isRequired: false,
-            max: 128
+            isRequired: false
         }
     }
 };
@@ -270,8 +266,7 @@ var chartsViewOptions = {
         },
         ref: {
             description: 'Ref (unique identifier)',
-            isRequired: false,
-            max: 128
+            isRequired: false
         },
         resource: {
             description: 'Resource Type',
