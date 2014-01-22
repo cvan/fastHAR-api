@@ -112,7 +112,7 @@ var historyViewOptions = {
             max: 128
         }
     }
-}
+};
 
 function historyView(req, res) {
     var DATA = req.params;
@@ -164,7 +164,7 @@ var statsViewOptions = {
             max: 128
         }
     }
-}
+};
 
 var resourceTypes = [
     'audio',
@@ -285,13 +285,11 @@ var chartsViewOptions = {
             scope: 'path'
         }
     }
-}
+};
 
 function chartsView(req, res) {
     var DATA = req.params;
 
-    var url = encodeURIComponent(DATA.url);
-    var ref = DATA.ref ? encodeURIComponent(DATA.ref) : '';
     var stat = DATA.stat;
     var resourceType = DATA.resource;
 
