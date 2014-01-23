@@ -65,8 +65,9 @@ var fetchViewOptions = {
 
 function fetchView(req, res) {
     var DATA = req.params;
+
     var url = encodeURIComponent(DATA.url);
-    var ref = encodeURIComponent(DATA.ref || new Date().toISOString());
+    var ref = DATA.ref || new Date().toISOString();
 
     phantomHAR(DATA.url, function(err, data) {
         if (err) {
@@ -115,7 +116,7 @@ function historyView(req, res) {
     var DATA = req.params;
 
     var url = encodeURIComponent(DATA.url);
-    var ref = DATA.ref ? encodeURIComponent(DATA.ref) : '';
+    var ref = DATA.ref;
 
     db.get(url, function(err, data) {
         if (err) {
@@ -123,15 +124,20 @@ function historyView(req, res) {
             return res.json(ref ? {} : []);
         }
 
+        var singleOutput = null;
         var output = [];
 
-        (data || []).some(function(entry) {
+        (data || []).some(function(entry, idx) {
             if (ref && ref === entry.har.log._ref) {
                 // Return HAR for a single ref.
-                return output = entry.har;
+                return singleOutput = entry.har;
             }
             output.push(entry.har);
         });
+
+        if (ref) {
+            output = singleOutput || {};
+        }
 
         res.json(output);
     });
@@ -207,7 +213,7 @@ function statsView(req, res, cb) {
     var DATA = req.params;
 
     var url = encodeURIComponent(DATA.url);
-    var ref = DATA.ref ? encodeURIComponent(DATA.ref) : '';
+    var ref = DATA.ref;
 
     db.get(url, function(err, data) {
         if (err) {
@@ -220,20 +226,25 @@ function statsView(req, res, cb) {
             }
         }
 
+        var singleOutput = null;
         var output = [];
         var stats;
 
         (data || []).forEach(function(entry) {
             stats = getStats(entry.har);
-            stats.ref = decodeURIComponent(entry.har.log._ref);
+            stats.ref = entry.har.log._ref;
 
             if (ref && ref === entry.har.log._ref) {
                 // Return stats for a single ref.
-                return stats;
+                return singleOutput = stats;
             }
 
             output.push(stats);
         });
+
+        if (ref) {
+            output = singleOutput || {};
+        }
 
         if (res) {
             res.json(output);
