@@ -81,7 +81,7 @@ function fetchView(req, res) {
                 return res.error(400, {error: err});
             }
         });
-        console.log(data);
+        console.log(JSON.stringify(data, null, 4));
     });
 
     res.json({success: true});
