@@ -130,7 +130,7 @@ function historyView(req, res) {
         (data || []).some(function(entry, idx) {
             if (ref && ref === entry.har.log._ref) {
                 // Return HAR for a single ref.
-                return singleOutput = entry.har;
+                singleOutput = entry.har;
             }
             output.push(entry.har);
         });
@@ -191,7 +191,10 @@ function getStats(har) {
         data.sizes[type] = data.times[type] = data.totals[type] = 0;
     });
 
+    var size;
+    var time;
     var type;
+
     har.log.entries.forEach(function(entry) {
         if (!entry.response || !entry.response.content) {
             return;
@@ -202,12 +205,15 @@ function getStats(har) {
             type = 'other';
         }
 
-        data.sizes[type] += entry.response.bodySize;
-        data.times[type] += entry.time;
+        size = entry.response.bodySize;
+        time = entry.timings.wait + entry.timings.receive;
+
+        data.sizes[type] += size;
+        data.times[type] += time;
         data.totals[type]++;
 
-        data.sizes['total'] += entry.response.bodySize;
-        data.times['total'] += entry.time;
+        data.sizes['total'] += size;
+        data.times['total'] += time;
         data.totals['total']++;
     });
 
@@ -241,7 +247,7 @@ function statsView(req, res, cb) {
 
             if (ref && ref === entry.har.log._ref) {
                 // Return stats for a single ref.
-                return singleOutput = stats;
+                singleOutput = stats;
             }
 
             output.push(stats);
