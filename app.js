@@ -180,6 +180,7 @@ var resourceTypes = [
     'js',
     'json',
     'other',
+    'total',
     'video'
 ];
 
@@ -204,6 +205,10 @@ function getStats(har) {
         data.sizes[type] += entry.response.bodySize;
         data.times[type] += entry.time;
         data.totals[type]++;
+
+        data.sizes['total'] += entry.response.bodySize;
+        data.times['total'] += entry.time;
+        data.totals['total']++;
     });
 
     return data;
@@ -280,15 +285,20 @@ var chartsViewOptions = {
             isRequired: false
         },
         resource: {
-            description: 'Resource Type',
+            description: 'Resource type to filter by',
             isRequired: false,
-            isIn: resourceTypes,
+            isIn: resourceTypes
         },
         stat: {
             description: 'Statistic type',
             isRequired: true,
             isIn: ['sizes', 'times', 'totals'],
             scope: 'path'
+        },
+        exclude: {
+            description: 'Resource type to exclude',
+            isRequired: false,
+            isIn: resourceTypes
         }
     }
 };
@@ -298,6 +308,7 @@ function chartsView(req, res) {
 
     var stat = DATA.stat;
     var resourceType = DATA.resource;
+    var exclude = DATA.exclude;
 
     var types = resourceTypes.slice(0);
     if (resourceType) {
@@ -354,6 +365,9 @@ function chartsView(req, res) {
         // Omit a particular resource type if no requests of that type were
         // ever made throughout the entire history recorded for this site.
         output.datasets = output.datasets.filter(function(dataset) {
+            if (exclude && dataset[0] === exclude) {
+                return false;
+            }
             return resourceTotals[dataset[0]];
         });
 
