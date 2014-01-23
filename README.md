@@ -12,6 +12,10 @@ Install dependencies:
 
     npm install
 
+Set up settings:
+
+    cp settings_local.js.dist settings_local.js
+
 Run server:
 
     PORT=5000 node app.js
