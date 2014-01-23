@@ -4,4 +4,4 @@
 db/*/*
 node_modules/
 npm-debug.log
-settings_local.js
+#settings_local.js
