@@ -1,23 +1,23 @@
 {
-    "name": "fasthar-api",
-    "description": "an API server that returns aggregated data from HTTP Archive (HAR) data from captured network traffic",
-    "version": "0.0.1",
-    "repository": {
-        "url": "git://github.com/cvan/fastHAR-api.git",
-        "type": "git"
-    },
-    "dependencies": {
-        "level": "latest",
-        "levelplus": "latest",
-        "node-restify-swagger": "latest",
-        "node-restify-validation": "latest",
-        "phantomhar": "latest",
-        "restify": "latest"
-    },
-    "devDependencies": {
-        "levelhud": "latest"
-    },
-    "jshintConfig": {
-        "boss": true
-    }
+  "name": "fasthar-api",
+  "description": "an API server that returns aggregated data from HTTP Archive (HAR) data from captured network traffic",
+  "version": "0.0.2",
+  "repository": {
+    "url": "git://github.com/cvan/fastHAR-api.git",
+    "type": "git"
+  },
+  "dependencies": {
+    "level": "latest",
+    "levelplus": "latest",
+    "node-restify-swagger": "latest",
+    "node-restify-validation": "latest",
+    "phantomhar": "latest",
+    "restify": "latest"
+  },
+  "devDependencies": {
+    "levelhud": "latest"
+  },
+  "jshintConfig": {
+    "boss": true
+  }
 }
