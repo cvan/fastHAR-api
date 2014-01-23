@@ -2,6 +2,7 @@ var spawn = require('child_process').spawn;
 
 var db = require('./db');
 var server = require('./server');
+var settings = require('./settings_local');
 
 
 function phantomHAR(url, cb) {
@@ -394,6 +395,6 @@ server.get(statsViewOptions, statsView);
 server.get(chartsViewOptions, chartsView);
 
 
-server.listen(process.env.PORT || 5000, function() {
+server.listen(settings.PORT || process.env.PORT || 5000, function() {
     console.log('%s listening at %s', server.name, server.url);
 });
