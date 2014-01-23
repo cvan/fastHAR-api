@@ -196,7 +196,7 @@ function getStats(har) {
             return;
         }
 
-        type = entry.response.content.type;
+        type = entry.response.content._type;
         if (!type || resourceTypes.indexOf(type) === -1) {
             type = 'other';
         }
