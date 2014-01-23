@@ -14,6 +14,9 @@
         "phantomhar": "latest",
         "restify": "latest"
     },
+    "devDependencies": {
+        "levelhud": "latest"
+    },
     "jshintConfig": {
         "boss": true
     }
