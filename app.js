@@ -72,7 +72,15 @@ function fetchView(req, res) {
     var DATA = req.params;
 
     var url = encodeURIComponent(DATA.url);
-    var ref = DATA.ref || new Date().toISOString();
+    var ref = DATA.ref;
+    if (ref) {
+        if (ref.length === 40) {
+            // If we got a full SHA, shorten it.
+            ref = ref.substr(0, 7);
+        }
+    } else {
+        ref = new Date().toISOString();
+    }
 
     setTimeout(function() {
         phantomHAR(DATA.url, function(err, data) {
