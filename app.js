@@ -78,15 +78,18 @@ function fetchView(req, res) {
     var url = encodeURIComponent(DATA.url);
     var ref = DATA.ref || new Date().toISOString();
     var payload = DATA.payload;
+    var sha = null;
+    var repoUrl = null;
 
     if (payload) {
         try {
-            ref = JSON.parse(req.params.payload).after;
-            if (ref.length === 40) {
-                // If we got a full SHA, shorten it.
-                ref = ref.substr(0, 7);
-            }
+            payload = JSON.parse(payload);
         } catch(e) {
+        }
+        if (payload && payload.after &&
+            payload.repository && payload.repository.url) {
+            sha = payload.after;
+            repoUrl = payload.repository.url;
         }
     }
 
@@ -98,6 +101,8 @@ function fetchView(req, res) {
             // TODO: Allow only one ref.
             data = JSON.parse(data);
             data.log._ref = ref;
+            data.log._sha = sha;
+            data.log._repo = repoUrl;
             db.push(url, {har: data}, function(err) {
                 if (err) {
                     return res.error(400, {error: err});
@@ -150,7 +155,7 @@ function historyView(req, res) {
         var singleOutput = null;
         var output = [];
 
-        (data || []).some(function(entry, idx) {
+        (data || []).some(function(entry) {
             if (ref && ref === entry.har.log._ref) {
                 // Return HAR for a single ref.
                 singleOutput = entry.har;
@@ -235,9 +240,9 @@ function getStats(har) {
         data.times[type] += time;
         data.totals[type]++;
 
-        data.sizes['total'] += size;
-        data.times['total'] += time;
-        data.totals['total']++;
+        data.sizes.total += size;
+        data.times.total += time;
+        data.totals.total++;
     });
 
     return data;
