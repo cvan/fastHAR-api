@@ -1,4 +1,4 @@
 module.exports = {
     DEBUG: false,
-    PORT: 9999
+    PORT: 5000
 };
