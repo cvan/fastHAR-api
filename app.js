@@ -23,6 +23,9 @@ function phantomHAR(url, cb) {
         error += data;
     });
 
+    console.log('phantomjs output:', output);
+    console.error('phantomjs error:', error);
+
     job.on('exit', function(code) {
         if (code !== 0) {
             if (error) {
@@ -30,6 +33,7 @@ function phantomHAR(url, cb) {
             } else {
                 error = 'phantomjs ' + args[0] + ' exited: ' + code;
             }
+            console.error(error);
         }
         cb(error, output);
     });
