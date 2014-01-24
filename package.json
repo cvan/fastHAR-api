@@ -1,7 +1,7 @@
 {
   "name": "fasthar-api",
   "description": "an API server that returns aggregated data from HTTP Archive (HAR) data from captured network traffic",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": {
     "url": "git://github.com/cvan/fastHAR-api.git",
     "type": "git"
