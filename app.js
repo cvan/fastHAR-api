@@ -74,20 +74,22 @@ function fetchView(req, res) {
     var url = encodeURIComponent(DATA.url);
     var ref = DATA.ref || new Date().toISOString();
 
-    phantomHAR(DATA.url, function(err, data) {
-        if (err) {
-            return res.error(400, {error: err});
-        }
-        // TODO: Allow only one ref.
-        data = JSON.parse(data);
-        data.log._ref = ref;
-        db.push(url, {har: data}, function(err) {
+    setTimeout(function() {
+        phantomHAR(DATA.url, function(err, data) {
             if (err) {
                 return res.error(400, {error: err});
             }
+            // TODO: Allow only one ref.
+            data = JSON.parse(data);
+            data.log._ref = ref;
+            db.push(url, {har: data}, function(err) {
+                if (err) {
+                    return res.error(400, {error: err});
+                }
+            });
+            console.log(JSON.stringify(data, null, 4));
         });
-        console.log(JSON.stringify(data, null, 4));
-    });
+    }, DATA.delay || 0);
 
     res.json({success: true});
 }
