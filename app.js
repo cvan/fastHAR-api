@@ -64,6 +64,10 @@ var fetchViewOptions = {
         ref: {
             description: 'Ref (unique identifier)',
             isRequired: false
+        },
+        payload: {
+            description: 'Payload (from GitHub webhook)',
+            isRequired: false
         }
     }
 };
@@ -72,14 +76,18 @@ function fetchView(req, res) {
     var DATA = req.params;
 
     var url = encodeURIComponent(DATA.url);
-    var ref = DATA.ref;
-    if (ref) {
-        if (ref.length === 40) {
-            // If we got a full SHA, shorten it.
-            ref = ref.substr(0, 7);
+    var ref = DATA.ref || new Date().toISOString();
+    var payload = DATA.payload;
+
+    if (payload) {
+        try {
+            ref = JSON.parse(req.params.payload).after;
+            if (ref.length === 40) {
+                // If we got a full SHA, shorten it.
+                ref = ref.substr(0, 7);
+            }
+        } catch(e) {
         }
-    } else {
-        ref = new Date().toISOString();
     }
 
     setTimeout(function() {
