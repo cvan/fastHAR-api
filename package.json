@@ -12,6 +12,7 @@
     "node-restify-swagger": "latest",
     "node-restify-validation": "latest",
     "phantomhar": "latest",
+    "phantomjs": "latest",
     "restify": "latest"
   },
   "devDependencies": {

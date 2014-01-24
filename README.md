@@ -6,6 +6,17 @@ data from captured network traffic. This is the API for
 [fastHAR](https://github.com/cvan/fastHAR).
 
 
+# Dependencies
+
+Install phantomjs on Mac OS X:
+
+    brew install phantomjs
+
+Or on Linux:
+
+    apt-get install phantomjs
+
+
 # Installation
 
 Install dependencies:
