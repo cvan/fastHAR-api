@@ -5,14 +5,17 @@ var server = require('./server');
 var settings = require('./settings_local');
 
 
-function phantomHAR(url, cb) {
+function phantomHAR(opts, cb) {
     var output = '';
     var error = '';
 
     var args = [
         __dirname + '/node_modules/phantomhar/phantomhar.js',
-        url
+        opts.url
     ];
+    if (typeof opts.delay !== 'undefined') {
+        args.push(opts.delay);
+    }
     var job = spawn('phantomjs', args);
 
     job.stdout.on('data', function(data) {
@@ -76,6 +79,7 @@ function fetchView(req, res) {
     var DATA = req.params;
 
     var url = encodeURIComponent(DATA.url);
+    var delay = DATA.delay;
     var ref = DATA.ref || new Date().toISOString();
     var payload = DATA.payload;
     var sha = null;
@@ -94,7 +98,8 @@ function fetchView(req, res) {
     }
 
     setTimeout(function() {
-        phantomHAR(DATA.url, function(err, data) {
+        phantomHAR({url: DATA.url, delay: DATA.phantom_delay},
+                   function(err, data) {
             if (err) {
                 return res.error(400, {error: err});
             }
