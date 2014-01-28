@@ -7,12 +7,14 @@
     "type": "git"
   },
   "dependencies": {
+    "es6-promise": "*",
     "level": "latest",
     "levelplus": "latest",
     "node-restify-swagger": "latest",
     "node-restify-validation": "latest",
     "phantomhar": "latest",
     "phantomjs": "latest",
+    "request": "latest",
     "restify": "latest"
   },
   "devDependencies": {

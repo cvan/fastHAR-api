@@ -1,8 +1,14 @@
 var spawn = require('child_process').spawn;
 
+var Promise = require('es6-promise').Promise;
+var request = require('request');
+
 var db = require('./db');
 var server = require('./server');
 var settings = require('./settings_local');
+
+// The contents of these types of files should be included in the HAR.
+const ALLOWED_CONTENT_TYPES = ['css', 'js', 'json', 'doc'];
 
 
 function phantomHAR(opts, cb) {
@@ -39,6 +45,57 @@ function phantomHAR(opts, cb) {
             console.error(error);
         }
         cb(error, output);
+    });
+}
+
+
+function processResponses(data, cb) {
+    // Fetch each request separately.
+
+    var promises = [];
+
+    data.log.entries.forEach(function(entry, idx) {
+        promises.push(new Promise(function(resolve, reject) {
+
+            opts = {
+                method: entry.request.method,
+                url: entry.request.url,
+                headers: {},
+            };
+
+            entry.request.headers.forEach(function(header) {
+                opts.headers[header.name] = header.value;
+            });
+
+            request(opts, function(err, res, body) {
+                if (err) {
+                    return reject({idx: idx, data: err});
+                }
+
+                // TODO: Get headersSize.
+                entry.response.bodySize = res.headers['content-length'];
+                entry.response.status = res.statusCode;
+                entry.response.content.size = res.headers['content-length'];
+                if (ALLOWED_CONTENT_TYPES.indexOf(entry.response.content._type) !== -1) {
+                    // Store only non-binary content.
+                    entry.response.content.text = body;
+                }
+                resolve({idx: idx, data: entry});
+            });
+
+
+        }));
+    });
+
+    Promise.all(promises).then(function(responses) {
+        responses.forEach(function(v) {
+            data.log.entries[v.idx] = v.data;
+        });
+        cb(null, data);
+    }).then(function(x) {
+        // console.log('Success:', x);
+    }, function(x) {
+        // console.error('Error:', x);
     });
 }
 
@@ -108,12 +165,14 @@ function fetchView(req, res) {
             data.log._ref = ref;
             data.log._sha = sha;
             data.log._repo = repoUrl;
-            db.push(url, {har: data}, function(err) {
-                if (err) {
-                    return res.error(400, {error: err});
-                }
+            processResponses(data, function(err, data) {
+                db.push(url, {har: data}, function(err) {
+                    if (err) {
+                        return res.error(400, {error: err});
+                    }
+                    console.log(JSON.stringify(data, null, 4));
+                });
             });
-            console.log(JSON.stringify(data, null, 4));
         });
     }, DATA.delay || 0);
 
