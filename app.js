@@ -486,6 +486,6 @@ server.get(statsViewOptions, statsView);
 server.get(chartsViewOptions, chartsView);
 
 
-server.listen(settings.PORT || process.env.PORT || 5000, function() {
+server.listen(process.env.PORT || settings.PORT || 5000, function() {
     console.log('%s listening at %s', server.name, server.url);
 });
