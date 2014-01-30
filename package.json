@@ -18,5 +18,8 @@
   },
   "jshintConfig": {
     "boss": true
+  },
+  "scripts": {
+    "start": "node app.js"
   }
 }
