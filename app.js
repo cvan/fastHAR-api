@@ -52,6 +52,7 @@ function phantomHAR(opts, cb) {
 function processResponses(data, cb) {
     // Fetch each request separately.
 
+    var opts = {};
     var promises = [];
 
     data.log.entries.forEach(function(entry, idx) {
@@ -166,7 +167,7 @@ function fetchView(req, res) {
             data.log._sha = sha;
             data.log._repo = repoUrl;
             processResponses(data, function(err, data) {
-                db.push(url, {har: data}, function(err) {
+                db.redis.rpush(url, JSON.stringify({har: data}), function(err) {
                     if (err) {
                         return res.error(400, {error: err});
                     }
@@ -210,7 +211,7 @@ function historyView(req, res) {
     var url = encodeURIComponent(DATA.url);
     var ref = DATA.ref;
 
-    db.get(url, function(err, data) {
+    db.redis.lrange(url, 0, -1, function(err, data) {
         if (err) {
             console.error(err);
             return res.json(ref ? {} : []);
@@ -219,7 +220,8 @@ function historyView(req, res) {
         var singleOutput = null;
         var output = [];
 
-        (data || []).some(function(entry) {
+        data.forEach(function(entry) {
+            entry = JSON.parse(entry);
             if (ref && ref === entry.har.log._ref) {
                 // Return HAR for a single ref.
                 singleOutput = entry.har;
@@ -318,7 +320,7 @@ function statsView(req, res, cb) {
     var url = encodeURIComponent(DATA.url);
     var ref = DATA.ref;
 
-    db.get(url, function(err, data) {
+    db.redis.lrange(url, 0, -1, function(err, data) {
         if (err) {
             console.error(err);
             data = ref ? {} : [];
@@ -333,7 +335,9 @@ function statsView(req, res, cb) {
         var output = [];
         var stats;
 
-        (data || []).forEach(function(entry) {
+        data.forEach(function(entry) {
+            entry = JSON.parse(entry);
+
             stats = getStats(entry.har);
             stats.ref = entry.har.log._ref;
 

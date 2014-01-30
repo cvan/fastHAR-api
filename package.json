@@ -8,17 +8,13 @@
   },
   "dependencies": {
     "es6-promise": "*",
-    "level": "latest",
-    "levelplus": "latest",
     "node-restify-swagger": "latest",
     "node-restify-validation": "latest",
     "phantomhar": "latest",
     "phantomjs": "latest",
+    "redis": "latest",
     "request": "latest",
     "restify": "latest"
-  },
-  "devDependencies": {
-    "levelhud": "latest"
   },
   "jshintConfig": {
     "boss": true
