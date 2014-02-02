@@ -74,9 +74,9 @@ function processResponses(data, cb) {
                 }
 
                 // TODO: Get headersSize.
-                entry.response.bodySize = res.headers['content-length'];
+                entry.response.bodySize = parseInt(res.headers['content-length'], 10);
                 entry.response.status = res.statusCode;
-                entry.response.content.size = res.headers['content-length'];
+                entry.response.content.size = entry.response.bodySize;
                 if (ALLOWED_CONTENT_TYPES.indexOf(entry.response.content._type) !== -1) {
                     // Store only non-binary content.
                     entry.response.content.text = body;
