@@ -3,7 +3,7 @@ name: fastHAR-api
 instances: 1
 
 framework:
-    type: node10
+    type: node
 
 mem: 128
 
