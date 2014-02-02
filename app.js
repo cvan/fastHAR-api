@@ -1,4 +1,6 @@
-var spawn = require('child_process').spawn;
+var child_process = require('child_process');
+var exec = child_process.exec;
+var spawn = child_process.spawn;
 
 var Promise = require('es6-promise').Promise;
 var request = require('request');
@@ -492,4 +494,13 @@ server.get(chartsViewOptions, chartsView);
 
 server.listen(process.env.PORT || settings.PORT || 5000, function() {
     console.log('%s listening at %s', server.name, server.url);
+});
+
+
+// Terminate if phantomjs is not installed.
+exec('phantomjs', function(err, stdout, stderr) {
+    if (stderr) {
+        console.error(stderr);
+        process.exit(1);
+    }
 });
