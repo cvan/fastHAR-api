@@ -24,7 +24,10 @@ function phantomHAR(opts, cb) {
     if (typeof opts.delay !== 'undefined') {
         args.push(opts.delay);
     }
-    var job = spawn('phantomjs', args);
+    var env = {
+        PATH: process.env.PATH + ':' + __dirname
+    };
+    var job = spawn('phantomjs', args, env);
 
     job.stdout.on('data', function(data) {
         output += data;
@@ -494,13 +497,4 @@ server.get(chartsViewOptions, chartsView);
 
 server.listen(process.env.PORT || settings.PORT || 5000, function() {
     console.log('%s listening at %s', server.name, server.url);
-});
-
-
-// Terminate if phantomjs is not installed.
-exec('phantomjs', function(err, stdout, stderr) {
-    if (stderr) {
-        console.error(stderr);
-        process.exit(1);
-    }
 });
