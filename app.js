@@ -2,6 +2,10 @@ var child_process = require('child_process');
 var exec = child_process.exec;
 var spawn = child_process.spawn;
 
+var fs = require('fs');
+var http = require('http');
+var zlib = require('zlib');
+
 var Promise = require('es6-promise').Promise;
 var request = require('request');
 
@@ -61,34 +65,97 @@ function processResponses(data, cb) {
     var promises = [];
 
     data.log.entries.forEach(function(entry, idx) {
-        promises.push(new Promise(function(resolve, reject) {
 
+        promises.push(new Promise(function(resolve, reject) {
             opts = {
                 method: entry.request.method,
                 url: entry.request.url,
-                headers: {},
+                headers: {}
             };
-
             entry.request.headers.forEach(function(header) {
                 opts.headers[header.name] = header.value;
             });
 
-            request(opts, function(err, res, body) {
-                if (err) {
-                    return reject({idx: idx, data: err});
+            request(opts).on('response', function(res) {
+                // Raw headers were added in v0.12
+                // (https://github.com/joyent/node/issues/4844), but let's
+                // reconstruct them for backwards compatibility.
+                var rawHeaders = ('HTTP/' + res.httpVersion + ' ' + res.statusCode +
+                                  ' ' + http.STATUS_CODES[res.statusCode] + '\r\n');
+                Object.keys(res.headers).forEach(function(headerKey) {
+                    rawHeaders += headerKey + ': ' + res.headers[headerKey] + '\r\n';
+                });
+                rawHeaders += '\r\n';
+
+                var uncompressedSize = 0;  // size after uncompression
+                var bodySize = 0;  // bytes size over the wire
+                var body = '';  // plain text body (after uncompressing gzip/deflate)
+
+                function tally() {
+                    if (ALLOWED_CONTENT_TYPES.indexOf(entry.response.content._type) !== -1) {
+                        // Store only non-binary content.
+                        entry.response.content.text = body;
+                    }
+                    entry.response.bodySize = bodySize;
+                    entry.response.content.headersSize = Buffer.byteLength(rawHeaders, 'utf8');
+                    entry.response.content.bodySize = bodySize;
+                    entry.response.content.size = uncompressedSize;
+                    entry.response.content.compression = uncompressedSize - bodySize;
+
+                    if (err) {
+                        return reject({idx: idx, data: err});
+                    }
+
+                    resolve({idx: idx, data: entry});
                 }
 
-                // TODO: Get headersSize.
-                entry.response.bodySize = parseInt(res.headers['content-length'], 10);
-                entry.response.status = res.statusCode;
-                entry.response.content.size = entry.response.bodySize;
-                if (ALLOWED_CONTENT_TYPES.indexOf(entry.response.content._type) !== -1) {
-                    // Store only non-binary content.
-                    entry.response.content.text = body;
+                switch (res.headers['content-encoding']) {
+                    case 'gzip':
+                        var gzip = zlib.createGunzip();
+
+                        gzip.on('data', function (data) {
+                            body += data;
+                            uncompressedSize += data.length;
+                        }).on('end', function () {
+                            tally();
+                        });
+
+                        res.on('data', function (data) {
+                            bodySize += data.length;
+                        }).pipe(gzip);
+
+                        break;
+                    case 'deflate':
+                        var deflate = zlib.createInflate();
+
+                        var uncompressedSize = 0;  // size after uncompression
+                        var bodySize = 0;  // bytes size over the wire
+
+                        deflate.on('data', function (data) {
+                            body += data;
+                            uncompressedSize += data.length;
+                        }).on('end', function () {
+                            tally();
+                        });
+
+                        res.on('data', function (data) {
+                            bodySize += data.length;
+                        }).pipe(deflate);
+
+                        break;
+                    default:
+                        var uncompressedSize = 0;  // size after uncompression
+                        var bodySize = 0;  // bytes size over the wire
+
+                        res.on('data', function (data) {
+                            uncompressedSize += bodySize += data.length;
+                        }).on('end', function () {
+                            tally();
+                        });
+
+                        break;
                 }
-                resolve({idx: idx, data: entry});
             });
-
 
         }));
     });
@@ -99,9 +166,9 @@ function processResponses(data, cb) {
         });
         cb(null, data);
     }).then(function(x) {
-        // console.log('Success:', x);
+        console.log('Success:', x);
     }, function(x) {
-        // console.error('Error:', x);
+        console.error('Error:', x);
     });
 }
 
